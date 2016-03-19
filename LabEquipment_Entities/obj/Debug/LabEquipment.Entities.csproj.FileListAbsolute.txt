@@ -1,0 +1,5 @@
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_Entities\obj\Debug\LabEquipment.Entities.csprojResolveAssemblyReference.cache
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_Entities\bin\Debug\LabEquipment.Entities.dll
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_Entities\bin\Debug\LabEquipment.Entities.pdb
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_Entities\obj\Debug\LabEquipment.Entities.dll
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_Entities\obj\Debug\LabEquipment.Entities.pdb

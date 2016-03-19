@@ -1,0 +1,16 @@
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_DesctopUI\obj\Debug\LabEquipment.DesctopUI.csprojResolveAssemblyReference.cache
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_DesctopUI\obj\Debug\LabEquipment.DesctopUI.csproj.GenerateResource.Cache
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_DesctopUI\bin\Debug\LabEquipment.DesctopUI.exe.config
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_DesctopUI\obj\Debug\LabEquipment.DesctopUI.AddEquipment.resources
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_DesctopUI\obj\Debug\LabEquipment.DesctopUI.AddWorker.resources
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_DesctopUI\obj\Debug\LabEquipment.DesctopUI.MainForm.resources
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_DesctopUI\obj\Debug\LabEquipment.DesctopUI.Properties.Resources.resources
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_DesctopUI\obj\Debug\LabEquipment.DesctopUI.ViolatorsForm.resources
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_DesctopUI\bin\Debug\LabEquipment.DesctopUI.exe
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_DesctopUI\bin\Debug\LabEquipment.DesctopUI.pdb
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_DesctopUI\bin\Debug\LabEquipment.Entities.dll
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_DesctopUI\bin\Debug\LabEquipment.Repositories.dll
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_DesctopUI\bin\Debug\LabEquipment.Entities.pdb
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_DesctopUI\bin\Debug\LabEquipment.Repositories.pdb
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_DesctopUI\obj\Debug\LabEquipment.DesctopUI.exe
+D:\Мої документи\Навчання (інше)\EPAM\PersonalProject\LabEquipment\LabEquipment_DesctopUI\obj\Debug\LabEquipment.DesctopUI.pdb
