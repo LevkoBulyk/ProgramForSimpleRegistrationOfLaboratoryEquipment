@@ -5,8 +5,7 @@ namespace LabEquipment.Repositories
 {
     interface IWorkerRepository
     {
-        IEnumerable<Worker> GetWorkerList();
-        IEnumerable<Worker> GetViolatorList();
+        IEnumerable<Worker> GetAllWorkers();
         Worker InsertWorker(Worker worker);
 
         //IEnumerable<Worker> SearchForWorker(string name);

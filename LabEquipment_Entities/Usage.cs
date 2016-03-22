@@ -18,9 +18,9 @@ namespace LabEquipment.Entities
 
         #region Helping properties
 
-        public string EquipmentName { get; set; }
+        public Equipment EquipmentInfo { get; set; }
 
-        public string WorkerName { get; set; }
+        public Worker WorkerInfo { get; set; }
         
         #endregion
 
@@ -35,11 +35,11 @@ namespace LabEquipment.Entities
             this.ReturningDate = returningDate;
         }
 
-        public Usage(int id, int equipmentId, int workerId, DateTime takingDate, DateTime? returningDate, string equipmentName, string workerName)
+        public Usage(int id, int equipmentId, int workerId, DateTime takingDate, DateTime? returningDate, Equipment equipmentInfo, Worker workerInfo)
             : this(id, equipmentId, workerId, takingDate, returningDate)
         {
-            this.EquipmentName = equipmentName;
-            this.WorkerName = workerName;
+            this.EquipmentInfo = equipmentInfo;
+            this.WorkerInfo = workerInfo;
         }
         
         #endregion

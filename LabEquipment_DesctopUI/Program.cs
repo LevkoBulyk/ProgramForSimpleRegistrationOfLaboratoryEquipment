@@ -14,6 +14,13 @@ namespace LabEquipment.DesctopUI
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.ThreadException += Application_ThreadException;
+
+            AuthenticationWindow authenticationWnd = new AuthenticationWindow();
+            if (authenticationWnd.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
             Application.Run(new MainForm());
         }
 

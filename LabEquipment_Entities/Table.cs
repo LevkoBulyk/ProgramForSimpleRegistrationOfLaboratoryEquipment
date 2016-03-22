@@ -1,6 +1,6 @@
 ﻿namespace LabEquipment.Entities
 {
-    public class Table
+    public abstract class Table
     {
         public int Id { get; set; }
     }

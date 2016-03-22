@@ -5,7 +5,7 @@ namespace LabEquipment.Repositories
 {
     interface IEquipmentRepository
     {
-        IEnumerable<Equipment> GetEquipmentList();
+        IEnumerable<Equipment> GetAllEquipment();
         Equipment InsertEquipment(Equipment equipment);
 
         //IEnumerable<Equipment> SeqrchForEquipment(string name);

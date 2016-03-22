@@ -9,26 +9,25 @@ namespace LabEquipment.Repositories
     {
         #region Queries and procedures names
 
-        private const string _getAllEquipmentQuery = "SELECT Id, Name, PermanentLocation FROM tblEquipment;";
+        private const string _getAllEquipmentQuery = "SELECT Id, Name, PermanentLocation FROM tblEquipment WHERE [Disabled] = 0;";
 
-        private const string _insertEquipmentProcedure = "spInsertEquipment";
+        private const string _insertEquipmentQuery = "INSERT INTO tblEquipment (Name, PermanentLocation, [Disabled]) VALUES(@Name, @PermanentLocation, 0) SET @Id =@@IDENTITY;";
 
-        private const string _getEquipmentByIdQuery = "SELECT Id, Name, PermanentLocation FROM tblEquipment WHERE Id = @Id";
+        private const string _getEquipmentByIdQuery = "SELECT Id, Name, PermanentLocation FROM tblEquipment WHERE Id = @Id AND [Disabled] = 0;";
 
         #endregion
 
         #region Constructor
 
         public SqlEquipmentRepository(string connectionString)
-        {
-            this._connectionString = connectionString;
-        }
+            : base(connectionString)
+        { }
 
         #endregion
 
         #region Realisation of IUsageRepository methods
 
-        public IEnumerable<Equipment> GetEquipmentList()
+        public IEnumerable<Equipment> GetAllEquipment()
         {
             using (SqlConnection connection = new SqlConnection(this._connectionString))
             {
@@ -52,18 +51,14 @@ namespace LabEquipment.Repositories
             }
         }
 
-        #endregion
-
-        #region Helping methods
-
         public Equipment InsertEquipment(Equipment equipment)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                using (SqlCommand cmd = new SqlCommand(_insertEquipmentProcedure, connection))
+                using (SqlCommand cmd = new SqlCommand(_insertEquipmentQuery, connection))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandType = CommandType.Text;
 
                     cmd.Parameters.AddWithValue("@Name", equipment.Name);
                     cmd.Parameters.AddWithValue("@PermanentLocation", equipment.PermanentLocation);
@@ -76,7 +71,11 @@ namespace LabEquipment.Repositories
             }
         }
 
-        private Equipment GetEquipmentById(int id)
+        #endregion
+
+        #region Helping methods
+
+        internal Equipment GetEquipmentById(int id)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
@@ -85,14 +84,17 @@ namespace LabEquipment.Repositories
                 {
                     cmd.Parameters.AddWithValue("@Id", id);
                     SqlDataReader reader = cmd.ExecuteReader();
-                    reader.Read();
-                    string name = (string)reader["Name"];
-                    string permanentLocation = (string)reader["PermanentLocation"];
-                    return new Equipment(id, name, permanentLocation);
+                    if (reader.Read())
+                    {
+                        string name = (string)reader["Name"];
+                        string permanentLocation = (string)reader["PermanentLocation"];
+                        return new Equipment(id, name, permanentLocation);
+                    }
+                    return null;
                 }
             }
         }
-        
+
         #endregion
     }
 }

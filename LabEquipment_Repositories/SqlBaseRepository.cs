@@ -1,7 +1,12 @@
 ﻿namespace LabEquipment.Repositories
 {
-    public abstract class SqlBaseRepository
+    public class SqlBaseRepository
     {
         protected string _connectionString;
+
+        public SqlBaseRepository(string connectionString)
+        {
+            this._connectionString = connectionString;
+        }
     }
 }

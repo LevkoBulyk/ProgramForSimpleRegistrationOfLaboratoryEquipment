@@ -57,24 +57,26 @@
   <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
   <ItemGroup>
     <Folder Include="Properties" />
+    <Folder Include="Scripts\" />
     <Folder Include="dbo\" />
     <Folder Include="dbo\Tables\" />
     <Folder Include="dbo\Functions\" />
     <Folder Include="dbo\Stored Procedures\" />
-    <Folder Include="MyScripts" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Scripts\DATABASE DROP.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Scripts\TABLES DROP.sql" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\tblEquipment.sql" />
     <Build Include="dbo\Tables\tblWorker.sql" />
     <Build Include="dbo\Tables\tblUsage.sql" />
+    <None Include="Scripts\CERATE.sql" />
+    <None Include="Scripts\INSERT.sql" />
     <Build Include="dbo\Functions\fnCheckForViolator.sql" />
     <Build Include="dbo\Functions\fnCheckForAvailability.sql" />
-    <Build Include="dbo\Stored Procedures\spWrittingAboutTaking.sql" />
-    <Build Include="dbo\Stored Procedures\spInsertEquipment.sql" />
-    <Build Include="dbo\Stored Procedures\spInsertWorker.sql" />
-    <Build Include="MyScripts\CREATE.sql" />
-    <Build Include="MyScripts\DROP.sql" />
-    <Build Include="MyScripts\INSERT.sql" />
-    <Build Include="MyScripts\PROCS.sql" />
+    <Build Include="dbo\Stored Procedures\spInsertNewUsage.sql" />
   </ItemGroup>
 </Project>

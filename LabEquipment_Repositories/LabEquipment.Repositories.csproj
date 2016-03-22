@@ -48,13 +48,15 @@
     <Compile Include="SqlEquipmentRepository.cs" />
     <Compile Include="SqlUsageRepository.cs" />
     <Compile Include="SqlWorkerRepository.cs" />
-    <Compile Include="SqlViolatorRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LabEquipment_Entities\LabEquipment.Entities.csproj">
       <Project>{58ee438a-4380-46f0-9fce-4a0223f92c55}</Project>
       <Name>LabEquipment.Entities</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\DataSources\SqlUsageRepository.datasource" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

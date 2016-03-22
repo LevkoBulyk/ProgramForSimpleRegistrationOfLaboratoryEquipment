@@ -10,28 +10,29 @@ namespace LabEquipment.Repositories
     {
         #region Queries and procedures names
 
-        private const string _insertUsageProcedure = "spWrittingAboutTaking";
+        private const string _getAllUsageQuery = "SELECT Id, EquipmentId, WorkerId, TakeingDate, ReturningDate FROM tblUsage;";
 
-        private const string _getUsageByIdQuery = "SELECT u.Id, u.EquipmentId, u.WorkerId, u.TakeingDate, u.ReturningDate, e.Name AS 'EquipmentName', w.FirstName + ' ' + w.LastName AS 'WorkerName' FROM tblUsage u INNER JOIN tblEquipment e ON e.Id = u.EquipmentId INNER JOIN tblWorker w ON w.Id = u.WorkerId WHERE u.Id = @Id;";
+        private const string _insertTakePieceOfEquipmentProcedure = "spInsertNewUsage";
 
         private const string _returnEquipmentQuery = "IF (SELECT ReturningDate FROM tblUsage WHERE Id = @Id) IS NOT NULL RAISERROR('This act of returning is already closed.', 16, 1); UPDATE tblUsage SET ReturningDate = GETDATE() WHERE Id = @Id;";
 
-        private const string _getAllUsageQuery = "SELECT u.Id, u.EquipmentId, u.WorkerId, u.TakeingDate, u.ReturningDate, e.Name AS 'EquipmentName', w.FirstName + ' ' + w.LastName AS 'WorkerName' FROM tblUsage u INNER JOIN tblEquipment e ON e.Id = u.EquipmentId INNER JOIN tblWorker w ON w.Id = u.WorkerId;";
-        
+        private const string _getUsageByIdQuery = "SELECT u.Id, u.EquipmentId, u.WorkerId, u.TakeingDate, u.ReturningDate, e.Name AS 'EquipmentName', w.FirstName + ' ' + w.LastName AS 'WorkerName' FROM tblUsage u INNER JOIN tblEquipment e ON e.Id = u.EquipmentId INNER JOIN tblWorker w ON w.Id = u.WorkerId WHERE u.Id = @Id;";
+
+        private const string _getViolatorsQuery = "SELECT Id, EquipmentId, WorkerId, TakeingDate, ReturningDate FROM tblUsage WHERE ReturningDate IS NULL;";
+
         #endregion
 
         #region Constructor
 
         public SqlUsageRepository(string connectionString)
-        {
-            this._connectionString = connectionString;
-        }
+            : base(connectionString)
+        { }
 
         #endregion
 
         #region Realisation of IUsageRepository methods
 
-        public IEnumerable<Usage> GetUsageList()
+        public IEnumerable<Usage> GetAllUsage()
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
@@ -48,9 +49,13 @@ namespace LabEquipment.Repositories
                             int workerId = (int)reader["WorkerID"];
                             DateTime takeingDate = (DateTime)reader["TakeingDate"];
                             DateTime? returningDate = reader["ReturningDate"] == DBNull.Value ? null : (DateTime?)reader["ReturningDate"];
-                            string equipmentName = (string)reader["EquipmentName"];
-                            string workerName = (string)reader["WorkerName"];
-                            list.Add(new Usage(id, equipmentId, workerId, takeingDate, returningDate, equipmentName, workerName));
+                            
+                            Equipment equipment = new SqlEquipmentRepository(this._connectionString).GetEquipmentById(equipmentId);
+                            Worker worker = new SqlWorkerRepository(this._connectionString).GetWorkerById(workerId);
+                            if (equipment != null && worker != null)
+                            {
+                                list.Add(new Usage(id, equipmentId, workerId, takeingDate, returningDate, equipment, worker));
+                            }
                         }
                         return list;
                     }
@@ -63,7 +68,7 @@ namespace LabEquipment.Repositories
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                using (SqlCommand cmd = new SqlCommand(_insertUsageProcedure, connection))
+                using (SqlCommand cmd = new SqlCommand(_insertTakePieceOfEquipmentProcedure, connection))
                 {
                     cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
@@ -94,6 +99,37 @@ namespace LabEquipment.Repositories
             return GetUsageById(usageId);
         }
 
+        public IEnumerable<Usage> GetAllViolators()
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                using (SqlCommand cmd = new SqlCommand(_getViolatorsQuery, connection))
+                {
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        var list = new List<Usage>();
+                        while (reader.Read())
+                        {
+                            int id = (int)reader["Id"];
+                            int equipmentId = (int)reader["EquipmentId"];
+                            int workerId = (int)reader["WorkerID"];
+                            DateTime takeingDate = (DateTime)reader["TakeingDate"];
+                            DateTime? returningDate = reader["ReturningDate"] == DBNull.Value ? null : (DateTime?)reader["ReturningDate"];
+
+                            Equipment equipment = new SqlEquipmentRepository(this._connectionString).GetEquipmentById(equipmentId);
+                            Worker worker = new SqlWorkerRepository(this._connectionString).GetWorkerById(workerId);
+                            if (equipment != null && worker != null)
+                            {
+                                list.Add(new Usage(id, equipmentId, workerId, takeingDate, returningDate, equipment, worker));
+                            }
+                        }
+                        return list;
+                    }
+                }
+            }
+        }
+
         #endregion
 
         #region Helping methods
@@ -109,19 +145,28 @@ namespace LabEquipment.Repositories
                     cmd.Parameters.AddWithValue("@Id", id);
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        reader.Read();
-                        int equipmentId = (int)reader["EquipmentId"];
-                        int workerId = (int)reader["WorkerId"];
-                        DateTime takeingDate = (DateTime)reader["TakeingDate"];
-                        DateTime? returningDate = reader["ReturningDate"] == DBNull.Value ? null : (DateTime?)reader["ReturningDate"];
-                        string equipmentName = (string)reader["EquipmentName"];
-                        string workerName = (string)reader["WorkerName"];
-                        return (new Usage(id, equipmentId, workerId, takeingDate, returningDate, equipmentName, workerName));
+                        if (reader.Read())
+                        {
+                            int equipmentId = (int)reader["EquipmentId"];
+                            int workerId = (int)reader["WorkerID"];
+                            DateTime takeingDate = (DateTime)reader["TakeingDate"];
+                            DateTime? returningDate = reader["ReturningDate"] == DBNull.Value ? null : (DateTime?)reader["ReturningDate"];
+                            string equipmentName = (string)reader["EquipmentName"];
+                            string workerName = (string)reader["WorkerName"];
+
+                            Equipment equipment = new SqlEquipmentRepository(this._connectionString).GetEquipmentById(equipmentId);
+                            Worker worker = new SqlWorkerRepository(this._connectionString).GetWorkerById(workerId);
+                            if (equipment != null && worker != null)
+                            {
+                                return (new Usage(id, equipmentId, workerId, takeingDate, returningDate, equipment, worker));
+                            }
+                        }
+                        return null;
                     }
                 }
             }
         }
-        
+
         #endregion
     }
 }

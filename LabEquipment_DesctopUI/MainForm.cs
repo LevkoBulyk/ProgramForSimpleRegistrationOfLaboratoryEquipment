@@ -23,15 +23,19 @@ namespace LabEquipment.DesctopUI
 
         private int _selectedEquipmentId = 0;
 
-        private int _selectedWorkerId = 0;
+        // Info that is displaying:
+        // 0 - Equipment;
+        // 1 - Workers;
+        // 2 - Usage;
+        // 3 - Violators;
+        private int _dgvListState = 0;
 
-        private int _index = 3;
-        
         #endregion
 
         public MainForm()
         {
             InitializeComponent();
+            this.Text = $"Laboratory Equipment: {CurrentWorker.FirstName} {CurrentWorker.LastName}";
             this.RefreshInfo();
         }
 
@@ -39,57 +43,65 @@ namespace LabEquipment.DesctopUI
 
         private void List_Click(object sender, EventArgs e)
         {
-            if (this.List.SelectedItems[0] == null || this.List.SelectedItems[0].Group == null)
+            if (this.dgvList.SelectedCells == null)
             {
                 return;
             }
-            if (this.List.SelectedItems[0].Group == this.List.Groups[0])
-            {
-                SelectedLabel.Text = string.Format("Selected: {0}", this.List.SelectedItems[0].Text);
-                int.TryParse(this.List.SelectedItems[0].SubItems[4].Text, out this._selectedEquipmentId);
-            }
-            else if (this.List.SelectedItems[0].Group == this.List.Groups[1])
-            {
-                ByLabel.Text = string.Format("By: {0}", this.List.SelectedItems[0].Text);
-                int.TryParse(this.List.SelectedItems[0].SubItems[4].Text, out this._selectedWorkerId);
-            }
+            SelectedLabel.Text = string.Format("Selected: {0}", this.dgvList.Rows[this.dgvList.SelectedCells[0].RowIndex].Cells[1].Value);
+            int.TryParse(this.dgvList.Rows[this.dgvList.SelectedCells[0].RowIndex].Cells[0].Value.ToString(), out this._selectedEquipmentId);
         }
 
         private void TakeButton_Click(object sender, EventArgs e)
         {
-            if (this._selectedEquipmentId == 0 || this._selectedWorkerId == 0)
+            if (this._dgvListState != 0)
             {
-                throw new Exception("Equipment or Worker is not selected!");
+                throw new Exception("Go to 'Equipment' table first.");
             }
-            Usage newUsage = this._usageRepository.TakePieceOfEquipment(this._selectedWorkerId, this._selectedEquipmentId);
+            if (this._selectedEquipmentId == 0)
+            {
+                throw new Exception("Equipment is not selected!");
+            }
+            Usage newUsage = this._usageRepository.TakePieceOfEquipment(CurrentWorker.Id, this._selectedEquipmentId);
             if (newUsage != null)
             {
+                this._dgvListState = 2;
+                this.RefreshInfo();
                 MessageBox.Show("Record about act of taking is successfully added.", "Record Added", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            this.InsertInfo(newUsage, 2);
-            this.SelectedLabel.Text = "Selected: click on the equipment list to select...";
-            this.ByLabel.Text = "By: click on workers list...";
-            this._selectedEquipmentId = 0;
-            this._selectedWorkerId = 0;
         }
 
         private void ReturnButton_Click(object sender, EventArgs e)
         {
-            if (this.List.SelectedItems[0] == null || this.List.SelectedItems[0].Group == null || this.List.SelectedItems[0].Group != this.List.Groups[2])
+            if (!(this._dgvListState == 2 || this._dgvListState == 3))
+            {
+                throw new Exception("Go to table 'Usage' or 'Violators' first.");
+            }
+            if (this.dgvList.SelectedCells == null)
             {
                 throw new Exception("Act of usage is not selected.");
             }
             int usageId = 0;
-            int.TryParse(this.List.SelectedItems[0].SubItems[4].Text, out usageId);
+            int.TryParse(this.dgvList.Rows[this.dgvList.SelectedCells[0].RowIndex].Cells[0].Value.ToString(), out usageId);
             Usage newUsage = this._usageRepository.ReturnPieceOfEquipment(usageId);
-            this.List.Items[Convert.ToInt32(this.List.SelectedItems[0].Index)].SubItems[3].Text = newUsage.ReturningDate.ToString();
+            this._dgvListState = 2;
+            this.RefreshInfo();
             MessageBox.Show("Record about act of taking is successfully closed.", "Record Closed", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void ShowViolatorsButton_Click(object sender, EventArgs e)
         {
-            ViolatorsForm violators = new ViolatorsForm();
-            violators.Show();
+            if (this._dgvListState == 3)
+            {
+                this.showViolatorsButton.Text = "Show violators";
+                this._dgvListState = 0;
+                this.RefreshInfo();
+            }
+            else
+            {
+                this.showViolatorsButton.Text = "Show equipment";
+                this._dgvListState = 3;
+                this.RefreshInfo();
+            }
         }
 
         private void RefreshToolStripMenuItem_Click(object sender, EventArgs e)
@@ -104,7 +116,8 @@ namespace LabEquipment.DesctopUI
             if (addEquipment.DialogResult == DialogResult.OK)
             {
                 MessageBox.Show("New equipment was successfuly added.", "Equipment Add", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                this.InsertInfo(addEquipment.rezultEquipment, 0);
+                this._dgvListState = 0;
+                this.RefreshInfo();
                 addEquipment.Dispose();
             }
             else
@@ -121,7 +134,6 @@ namespace LabEquipment.DesctopUI
             if (addWorker.DialogResult == DialogResult.OK)
             {
                 MessageBox.Show("New worker was successfuly added to the list.", "Worker Add", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                this.InsertInfo(addWorker.rezultWorker, 1);
                 addWorker.Dispose();
             }
             else
@@ -129,6 +141,81 @@ namespace LabEquipment.DesctopUI
                 MessageBox.Show("Process was canceled by user.", "Wprker Adding Cancel", MessageBoxButtons.OK, MessageBoxIcon.Stop);
                 addWorker.Dispose();
             }
+            this.workersToolStripMenuItem_Click(this, new EventArgs());
+        }
+
+        private void workersToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.dgvList.Rows.Clear();
+
+            this.dgvList.Columns[0].HeaderText = "Id";
+            this.dgvList.Columns[0].Visible = false;
+            this.dgvList.Columns[0].Width = 50;
+
+            this.dgvList.Columns[1].HeaderText = "First name";
+            this.dgvList.Columns[1].Width = 150;
+
+            this.dgvList.Columns[2].HeaderText = "Last name";
+            this.dgvList.Columns[2].Width = 150;
+
+            this.dgvList.Columns[3].HeaderText = "Post";
+            this.dgvList.Columns[3].Visible = true;
+            this.dgvList.Columns[3].Width = 150;
+
+            this.dgvList.Columns[4].HeaderText = "Phone number";
+            this.dgvList.Columns[4].Visible = true;
+            this.dgvList.Columns[4].Width = 120;
+
+            this.dgvList.Columns[5].Visible = false;
+
+            foreach (var item in this._workerRepository.GetAllWorkers())
+            {
+                this.dgvList.Rows.Add(item.Id.ToString(), item.FirstName, item.LastName, item.Post, item.PhoneNumber);
+            }
+            this._dgvListState = 1;
+            this.lblTableName.Text = "Workers:";
+        }
+
+        private void usageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.dgvList.Rows.Clear();
+
+            this.dgvList.Columns[1].HeaderText = "Name of worker";
+            this.dgvList.Columns[1].Width = 200;
+
+            this.dgvList.Columns[2].HeaderText = "Name of equipment";
+            this.dgvList.Columns[2].Width = 200;
+
+            this.dgvList.Columns[3].HeaderText = "Takeing date";
+            this.dgvList.Columns[3].Visible = true;
+            this.dgvList.Columns[3].Width = 150;
+
+            this.dgvList.Columns[4].HeaderText = "Returning date";
+            this.dgvList.Columns[4].Visible = true;
+            this.dgvList.Columns[4].Width = 150;
+
+            this.dgvList.Columns[5].HeaderText = "Phone number";
+            this.dgvList.Columns[5].Visible = true;
+            this.dgvList.Columns[5].Width = 150;
+
+            foreach (var item in this._usageRepository.GetAllUsage())
+            {
+                this.dgvList.Rows.Add(item.Id.ToString(), item.EquipmentInfo.Name, item.WorkerInfo.FirstName + " " + item.WorkerInfo.LastName, item.TakingDate.ToString(), item.ReturningDate.ToString(), item.WorkerInfo.PhoneNumber);
+            }
+            this._dgvListState = 2;
+            this.lblTableName.Text = "Usage:";
+        }
+
+        private void equipmentToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this._dgvListState = 0;
+            this.RefreshInfo();
+        }
+
+        private void violatorsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this._dgvListState = 3;
+            this.RefreshInfo();
         }
 
         #endregion
@@ -137,65 +224,66 @@ namespace LabEquipment.DesctopUI
 
         private void RefreshInfo()
         {
-            this.List.Items.Clear();
-            _index = 3;
-
-            this.List.Items.Add("Name").SubItems.Add("Permanent Location");
-            this.List.Items[0].ForeColor = Color.Blue;
-            this.List.Items[0].Group = this.List.Groups[0];
-
-            this.List.Items.Add("First name").SubItems.AddRange(new string[] { "Last name", "Post", "Phone number" });
-            this.List.Items[1].ForeColor = Color.Blue;
-            this.List.Items[1].Group = this.List.Groups[1];
-
-            this.List.Items.Add("Equipment name").SubItems.AddRange(new string[] { "Worker name", "Taking Date", "Returning Date" });
-            this.List.Items[2].ForeColor = Color.Blue;
-            this.List.Items[2].Group = this.List.Groups[2];
-
-            foreach (var item in this._equipmentRepository.GetEquipmentList())
+            this.dgvList.Rows.Clear();
+            if (this._dgvListState == 2)
             {
-                this.List.Items.Add(item.Name).SubItems.AddRange(new string[] { item.PermanentLocation, "", "", item.Id.ToString() });
-                this.List.Items[_index].Group = this.List.Groups[0];
-                _index++;
+                this.usageToolStripMenuItem_Click(null, null);
             }
-
-            foreach (var item in this._workerRepository.GetWorkerList())
+            else if (this._dgvListState == 3)
             {
-                this.List.Items.Add(item.FirstName).SubItems.AddRange(new string[] { item.LastName, item.Post, item.PhoneNumber, item.Id.ToString() });
-                this.List.Items[_index].Group = this.List.Groups[1];
-                _index++;
-            }
+                this.dgvList.Columns[1].HeaderText = "Name of violator";
+                this.dgvList.Columns[1].Width = 200;
 
-            foreach (var item in this._usageRepository.GetUsageList())
-            {
-                this.List.Items.Add(item.EquipmentName).SubItems.AddRange(new string[] { item.WorkerName, item.TakingDate.ToString(), item.ReturningDate.ToString(), item.Id.ToString(), item.EquipmentId.ToString(), item.WorkerId.ToString() });
-                this.List.Items[_index].Group = this.List.Groups[2];
-                _index++;
-            }
-        }
+                this.dgvList.Columns[2].HeaderText = "Name of equipment";
+                this.dgvList.Columns[2].Width = 200;
 
-        private void InsertInfo(Table info, int groupNumber)
-        {
-            switch (groupNumber)
-            {
-                case 0:
-                    Equipment newEquipment = info as Equipment;
-                    this.List.Items.Add(newEquipment.Name).SubItems.AddRange(new string[] { newEquipment.PermanentLocation, "", "", newEquipment.Id.ToString() });
-                    break;
-                case 1:
-                    Worker newWorker = info as Worker;
-                    this.List.Items.Add(newWorker.FirstName).SubItems.AddRange(new string[] { newWorker.LastName, newWorker.Post, newWorker.PhoneNumber, newWorker.Id.ToString() });
-                    break;
-                case 2:
-                    Usage newUsage = info as Usage;
-                    this.List.Items.Add(newUsage.EquipmentName).SubItems.AddRange(new string[] { newUsage.WorkerName, newUsage.TakingDate.ToString(), newUsage.ReturningDate.ToString(), newUsage.Id.ToString(), newUsage.EquipmentId.ToString(), newUsage.WorkerId.ToString() });
-                    break;
-                default:
-                    break;
+                this.dgvList.Columns[3].HeaderText = "Takeing date";
+                this.dgvList.Columns[3].Visible = true;
+                this.dgvList.Columns[3].Width = 150;
+
+                this.dgvList.Columns[4].HeaderText = "Phone number";
+                this.dgvList.Columns[4].Visible = true;
+                this.dgvList.Columns[4].Width = 150;
+
+                this.dgvList.Columns[5].Visible = false;
+
+                foreach (var item in this._usageRepository.GetAllViolators())
+                {
+                    this.dgvList.Rows.Add(item.Id.ToString(), item.EquipmentInfo.Name, item.WorkerInfo.FirstName + " " + item.WorkerInfo.LastName, item.TakingDate.ToString(), item.WorkerInfo.PhoneNumber);
+                }
+                this.lblTableName.Text = "Violators:";
             }
-            this.List.Items[this.List.Items.Count - 1].Group = this.List.Groups[groupNumber];
+            else if (this._dgvListState == 1)
+            {
+                this.workersToolStripMenuItem_Click(null, null);
+            }
+            else
+            {
+                this.dgvList.Columns[0].HeaderText = "Id";
+                this.dgvList.Columns[0].Visible = false;
+                this.dgvList.Columns[0].Width = 50;
+
+                this.dgvList.Columns[1].HeaderText = "Name of equipment";
+                this.dgvList.Columns[1].Width = 200;
+
+                this.dgvList.Columns[2].HeaderText = "Permanent location of equipment";
+                this.dgvList.Columns[2].Width = 500;
+
+                this.dgvList.Columns[3].Visible = false;
+
+                this.dgvList.Columns[4].Visible = false;
+
+                this.dgvList.Columns[5].Visible = false;
+
+                foreach (var item in this._equipmentRepository.GetAllEquipment())
+                {
+                    this.dgvList.Rows.Add(item.Id.ToString(), item.Name, item.PermanentLocation);
+                }
+                this.lblTableName.Text = "Equipment:";
+            }
         }
 
         #endregion
+
     }
 }
