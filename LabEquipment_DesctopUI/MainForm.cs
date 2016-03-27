@@ -28,6 +28,8 @@ namespace LabEquipment.DesctopUI
         // 1 - Workers;
         // 2 - Usage;
         // 3 - Violators;
+        
+        // IP: why not to use an ENUMS ?..
         private int _dgvListState = 0;
 
         #endregion
@@ -35,7 +37,8 @@ namespace LabEquipment.DesctopUI
         public MainForm()
         {
             InitializeComponent();
-            this.Text = $"Laboratory Equipment: {CurrentWorker.FirstName} {CurrentWorker.LastName}";
+            // IP: complilation error with "$" symbol presence
+            this.Text = "Laboratory Equipment: {CurrentWorker.FirstName} {CurrentWorker.LastName}";
             this.RefreshInfo();
         }
 

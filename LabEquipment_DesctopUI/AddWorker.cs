@@ -15,7 +15,8 @@ namespace LabEquipment.DesctopUI
         public AddWorker()
         {
             InitializeComponent();
-            this.lblManager.Text = $"Manager:\t{CurrentWorker.FirstName} {CurrentWorker.LastName}";
+            // IP: complilation error with "$" symbol presence
+            this.lblManager.Text = "Manager:\t{CurrentWorker.FirstName} {CurrentWorker.LastName}";
         }
 
         private void btnOk_Click(object sender, EventArgs e)

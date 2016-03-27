@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace LabEquipment.DesctopUI
 {
+    // IP: the location of its file itself is controversial ... & why it isn't "static class" (all its members is static)
     public class CurrentWorker
     {
         private static Worker currentWorker;
